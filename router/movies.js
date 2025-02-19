@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const movieController = require('../controllers/movieController')
-const middleware = require('../middleware/index')
+//const middleware = require('../middleware/index')
 
 
 //SEED
@@ -11,7 +11,7 @@ router.get('/', movieController.readAll)
 //READ one
 router.get('/:id', movieController.readOne)
 //CREATE
-router.post('/', middleware.isCredentialsExist, movieController.create)
+router.post('/', movieController.create)
 //UPDATE
 router.patch('/:id', movieController.update)
 //DELETE

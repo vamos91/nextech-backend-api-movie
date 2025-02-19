@@ -1,7 +1,9 @@
 const axios = require('axios');
 const movies = []
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 
-exports.seedApi = (req, res) => {
+exports.seedApi = async (req, res) => {
     const options = {
         method: 'GET',
         headers: {
@@ -10,15 +12,23 @@ exports.seedApi = (req, res) => {
         }
     };
     axios.get('https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', options)
-        .then(response => {
-            console.log(response.data.results)
-            res.json({ data: response.data.results })
-            response.data.results.forEach((element) => {
-                movies.push(element)
+        .then(response => {            
+            response.data.results.map(async(el) => {
+                movies.push(el)
+                console.log(el.original_title)
+                 await prisma.movies.create({
+                    data: {
+                        title: el.original_title,
+                        desc: el.overview,
+                        poster: el.poster_path
+                        }
+                })
             });
-            
+            res.json({ data: response.data.results })
         })
 }
+
+
 
 exports.readAll = (req, res) => {
     res.json({movies: movies})

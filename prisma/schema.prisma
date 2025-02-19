@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model movies {
+  id                  Int                   @id @default(autoincrement())
+  title               String                @db.VarChar(255)
+  desc                String?               @db.Text
+  poster              String?               @db.VarChar(255)
+  movies_has_playlist movies_has_playlist[]
+}
+
+model playlist {
+  id                  Int                   @id @default(autoincrement())
+  title               String?               @db.Text
+  desc                String?               @db.Text
+  authorId            Int
+  author              user                  @relation(fields: [authorId], references: [id])
+  movies_has_playlist movies_has_playlist[]
+}
+
+model user {
+  id       Int        @id @default(autoincrement())
+  email    String     @unique(map: "email_UNIQUE") @db.VarChar(255)
+  password String     @db.VarChar(255)
+  role     user_role
+  playlist playlist[]
+}
+
+model movies_has_playlist {
+  movies_id   Int
+  playlist_id Int
+  movies      movies   @relation(fields: [movies_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_movies_has_playlist_movies1")
+  playlist    playlist @relation(fields: [playlist_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_movies_has_playlist_playlist1")
+
+  @@id([movies_id, playlist_id])
+  @@index([movies_id], map: "fk_movies_has_playlist_movies1_idx")
+  @@index([playlist_id], map: "fk_movies_has_playlist_playlist1_idx")
+}
+
+enum user_role {
+  basic_user
+  admin
+}
